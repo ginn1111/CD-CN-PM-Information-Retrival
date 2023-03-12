@@ -4,13 +4,14 @@ WEEK 2
 - N19DCCN204: Phạm Văn Thuận
 - N19DCNC126: Lê Hoài Nhân
 - N19DCCN136: Nguyễn Trọng Tín
+
+SMART: ltc.ltc
 Stages:
-1. Processing data (docs, vocabulary, queries) -> OK
-2. Calculating tf (docs, queries) depend on vocabulary (fixed length)
-3. Calculating idf (docs, queries) depend on vocabulary (fixed length)
-4. Calculating cosine similarity between each query and docs. 
-  (for one query corresponding docs) -> weight
-5. Sorting decrease with weight
+1. Processing data (docs, vocabulary, queries).
+2. Calculating tf and weight tf (docs, queries).
+3. Calculating idf (docs, queries) and normalize (cosine).
+4. Calculating weight = weight_tf * idf.
+5. Calculating cosine similarity between each query's weight and doc's weight and sort. 
 """
 # %%
 # Import library and download stop words
@@ -24,6 +25,7 @@ import math
 nltk.download("stopwords")
 
 # %%
+# 1. Processing input
 """re_processing_words
 @Param {string} vocab (according to ./term-vocab)
 @Return {list<string>} a list of lowercase-words sorted by alphabet
@@ -108,6 +110,7 @@ with open("./dataset/query-text", "r") as f:
 processed_query = remove_stop_words(re_processing_docs(query_docs))
 
 # %%
+# 2. Calculating tf and weight tf
 # Calc tf
 
 tf_query_docs = [[query_doc.count(word) for word in processed_vocab] for query_doc in processed_query]
@@ -140,6 +143,7 @@ weight_tf_query_docs = calc_weight_tf(tf_query_docs)
 weight_tf_docs = calc_weight_tf(tf_docs)
 
 # %%
+# 3. Calculating idf
 # Statistic words in vocabulary corresponding the docs
 num_of_docs = len(processed_docs)
 df_docs = []
@@ -167,7 +171,7 @@ print(idf_docs)
 
 
 # %%
-# Calc weight (w_tf * idf) and normalize
+# 4. Calculating weight (w_tf * idf) and normalize
 def calc_weight_tf_idf_vec(weight_tf_vec, idf_vec):
     return [np.multiply(np.array(weight_tf), np.array(idf_vec)) for weight_tf in weight_tf_vec]
 
@@ -191,7 +195,7 @@ print(weight_docs_normalize)
 print(weight_queries_normalize)
 
 # %%
-# Calc cosine similarity
+# 5. Calculating cosine similarity and sort
 cos_sim_vec = []
 for weight_query in weight_queries_normalize:
     cos_sim_dict = {}
